@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; base-uri 'none'; form-action 'none'">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staking Garden</title>
+<style>
+:root{--bg:#f6f3ec;--g:#2f6f5e;--gd:#1f4d40;--gl:#e3f1ec;--tx:#2b2b2b;--mu:#5a625d;--card:#fff;--line:#e3dccb;--warn:#a4452c}
+*{box-sizing:border-box}
+html{font-size:17px}
+html.large{font-size:20px}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;line-height:1.65}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #e0a52c;outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding:0 14px 40px}
+header{position:sticky;top:0;z-index:5;background:rgba(246,243,236,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.hbar{max-width:720px;margin:0 auto;padding:8px 14px;display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--gd);font-size:1.1rem}
+.ctl{display:flex;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1.5px solid var(--g);border-radius:999px;overflow:hidden;background:#fff}
+.seg button{border:0;background:transparent;padding:5px 12px;font-size:.85rem;color:var(--g);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.tsz{border:1.5px solid var(--g);background:#fff;color:var(--g);border-radius:999px;padding:5px 12px;font-size:.85rem;font-weight:700}
+.tsz[aria-pressed=true]{background:var(--g);color:#fff}
+.tag{color:var(--mu);font-size:.9rem;margin:14px 2px 10px}
+.card{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 1px 0 var(--line),0 6px 18px rgba(47,111,94,.06);margin-bottom:14px}
+.gcard{background:linear-gradient(#fbf8ee,#fff 70%)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;color:var(--g);font-weight:800;font-size:1.05rem}
+.muted{color:var(--mu);font-size:.85rem}
+.bar{height:10px;border-radius:99px;background:var(--gl);overflow:hidden;margin:10px 0 4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#5aa588,var(--g));border-radius:99px;transition:width .6s}
+.garden{width:100%;height:auto;display:block;margin-top:6px}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 5s ease-in-out infinite}
+.pop{animation:pop .9s ease-out}
+.fr{transform-box:fill-box;transform-origin:center;animation:pop .6s ease-out both}
+.rwcard{text-align:center;background:linear-gradient(#fff8e0,#fff 75%)}
+.rwnum{font-size:2.4rem;font-weight:800;color:var(--g);line-height:1.2;margin:4px 0}
+.rwmsg{font-weight:700;color:var(--gd);margin:2px 0 6px}
+@keyframes sway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+@keyframes pop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.tabs{display:flex;gap:8px;margin:4px 0 12px}
+.tab{flex:1;border:1.5px solid var(--g);background:#fff;color:var(--g);border-radius:12px;padding:11px 8px;font-weight:800}
+.tab[aria-selected=true]{background:var(--g);color:#fff}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{width:2.6rem;height:2.6rem;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:800;color:var(--mu)}
+.chip.on{border-color:var(--g);background:var(--gl);color:var(--g)}
+.chip.cur{background:var(--g);color:#fff;border-color:var(--g)}
+.lab{font-size:.8rem;color:var(--mu);margin-bottom:4px}
+h2{font-size:1.4rem;margin:0 0 10px;line-height:1.35;color:var(--gd)}
+h3{margin:0 0 8px;font-size:1.1rem;color:var(--gd)}
+.body p{margin:0 0 10px;font-size:1.02rem;line-height:1.8}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-size:1.05rem;font-weight:700;margin-top:10px;text-align:center}
+.pri{background:var(--g);color:#fff}
+.pri:hover{background:var(--gd)}
+.sec{background:var(--gl);color:var(--g)}
+.btns2{display:flex;gap:8px}
+.btns2 .btn{margin-top:8px}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px;margin-top:10px;font-size:1.02rem;line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--g)}
+.opt.ok{border-color:var(--g);background:var(--gl)}
+.opt.ng{border-color:var(--warn);background:#fbece7}
+.fb{border-radius:12px;padding:14px;margin-top:12px;background:#f3efe2;font-size:.98rem}
+.fb b{display:block;margin-bottom:4px}
+.lvup{text-align:center;padding:26px 18px}
+.lvup .big{font-size:3.4rem;margin:8px 0}
+.lvup .nm{font-size:1.6rem;font-weight:800;color:var(--g)}
+.lvup .hint{background:#f6f3ec;border-radius:12px;padding:14px;margin:16px 0 4px;font-size:.95rem}
+.lvup{animation:pop .7s ease-out}
+label.f{display:block;font-weight:700;margin:14px 0 6px;font-size:.95rem}
+input[type=number],select{width:100%;padding:11px;border:1.5px solid #cfc7b3;border-radius:10px;background:#fff;font-size:1.05rem}
+input[type=range]{width:100%;accent-color:var(--g);height:30px}
+.pre{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.pre button{border:1.5px solid var(--g);background:#fff;color:var(--g);border-radius:99px;padding:5px 13px;font-weight:700}
+.chk{display:flex;gap:10px;align-items:center;margin-top:14px;font-weight:700}
+.chk input{width:22px;height:22px;accent-color:var(--g)}
+.steps{list-style:none;padding:0;margin:0}
+.steps li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed var(--line);animation:pop .5s ease-out}
+.steps .n{flex:none;width:2rem;height:2rem;border-radius:50%;background:var(--g);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.stat{background:var(--gl);border-radius:12px;padding:10px 6px;text-align:center}
+.stat b{display:block;font-size:1.15rem;color:var(--gd)}
+.stat span{font-size:.75rem;color:var(--mu)}
+.legend{display:flex;gap:14px;font-size:.8rem;color:var(--mu);margin-top:4px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.note{font-size:.8rem;color:var(--mu);margin-top:10px}
+.locked{text-align:center;padding:30px 18px}
+.locked .big{font-size:3rem}
+footer{margin-top:10px;font-size:.8rem;color:var(--mu)}
+.reset{background:none;border:1px solid var(--mu);color:var(--mu);border-radius:8px;padding:6px 12px;margin-top:8px;font-size:.8rem}
+#toast{min-height:1.4rem;font-size:.85rem;color:var(--g);font-weight:700;margin-top:6px}
+.hide{display:none}
+/* no visual change */
+@media(min-width:640px){.hbar,.wrap{padding-left:20px;padding-right:20px}.card{padding:24px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hbar">
+    <div class="brand"><svg width="34" height="26" viewBox="0 0 34 26" aria-hidden="true"><path d="M7 16h20l-3 8H10z" fill="#8a5a3c"/><ellipse cx="17" cy="10" rx="11" ry="8" fill="#3f7a4c"/><ellipse cx="11" cy="12" rx="6" ry="4" fill="#2f5d3a"/></svg><span>Staking Garden</span></div>
+    <div class="ctl">
+      <button class="tsz" id="tsz" data-demo="text-size" aria-pressed="false"></button>
+      <div class="seg" data-demo="lang-switch" role="group" aria-label="Language">
+        <button id="b-ja" data-lang="ja" data-demo="lang-ja" aria-pressed="false">日本語</button>
+        <button id="b-en" data-lang="en" data-demo="lang-en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="wrap">
+  <p class="tag" data-i18n="tag"></p>
+
+  <section class="card gcard" data-demo="garden-card">
+    <div class="row">
+      <div class="badge" id="lvBadge" data-demo="level-badge"></div>
+      <div class="muted" id="lvCount"></div>
+    </div>
+    <div class="bar" aria-hidden="true"><i id="lvBar" style="width:0%"></i></div>
+    <div class="muted" id="lvNext"></div>
+    <div id="gardenBox" data-demo="garden"></div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-learn" data-tab="learn" data-demo="tab-learn" aria-selected="true" data-i18n="tabLearn"></button>
+    <button class="tab" role="tab" id="tab-sim" data-tab="sim" data-demo="tab-sim" aria-selected="false"></button>
+  </div>
+
+  <section id="view-learn" data-demo="learn-area"></section>
+
+  <section id="view-sim" class="hide"></section>
+
+  <footer>
+    <div data-i18n="disc"></div>
+    <button class="reset" id="resetBtn" data-demo="reset-progress" data-i18n="reset"></button>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </footer>
+</div>
+
+<script>
+const I18N = {
+ja:{
+ title:"Staking Garden｜学ぶほど、庭が育つ",
+ tag:"盆栽のように、学んで育てて、ステーキングを疑似体験。",
+ tabLearn:"📖 学ぶ", tabSim:"🌱 ステーキング体験", tabSimLock:"🔒 ステーキング体験",
+ lvl:["見習い","ステーカー","バリデータ"], lvlSub:["初級","中級","上級"],
+ toNext:n=>`次の称号まであと${n}枚のクイズ正解`, maxLvl:"最高の称号です。庭を完成させましょう",
+ cnt:(n,m)=>`${n} / ${m} 枚 修了`,
+ gardenAria:(n,m)=>`あなたの庭：${m}鉢のうち${n}鉢が育っています`,
+ cardOf:(i,m)=>`カード ${i} / ${m}`, cardLabel:"学習カード", quizBtn:"クイズに挑戦する",
+ prev:"← 前のカード", next:"次のカード →", quizLabel:"3択クイズ", done:"修了",
+ ok:"正解です！🌿", ng:"おしい！もう一度考えてみましょう",
+ retry:"もう一度挑戦", backCard:"カードを読み直す", nextLesson:"次のカードへ",
+ levelUp:"レベルアップ！", reached:l=>`${l}になりました`,
+ unlock2:"次は「自分でステーキング疑似体験」が解放されます",
+ unlock3:"バリデータの称号です。残りのカードで庭を完成させましょう",
+ goSim:"ステーキング体験へ", keep:"学習を続ける",
+ fin:"庭が完成しました 🎉", finB:"すべての学習カードを修了しました。ステーキング体験で、庭の木をさらに育ててみましょう。", reread:"最初から読み返す",
+ lockedT:"まだ芽が出ていません", lockedB:"学習カード2枚のクイズに正解すると「ステーカー」になり、体験が解放されます。", goLearn:"学びに戻る",
+ simT:"ステーキング疑似体験", simSub:"実際のお金やブロックチェーンにはつながりません。数字は学習用の仮の値です。",
+ amount:"預けるETHの量", years:"期間", yu:n=>`${n}年`, apr:"想定の年率", uptime:"稼働率（オフライン時間の影響）",
+ up100:"100%（ずっと稼働）", up98:"98%（ときどき停止）", up90:"90%（よく停止）",
+ reinvest:"報酬をそのまま預け直す", plant:"🌱 植える（体験スタート）",
+ steps:[["預け入れ","ETHを預け入れ口に送ります。"],["順番待ち","稼働開始まで、数日ほど待ちます。"],["稼働開始","取引が正しいかの確認に参加します。"],["報酬が届く","確認のたびに、少しずつ報酬が積み上がります。"]],
+ resT:"体験の結果", finalL:"期間後の残高", rewL:"報酬の合計", monL:"1か月あたり", lgB:"預けた分", lgR:"報酬",
+ own:n=>`32 ETH以上なので、自分でバリデータを${n}台運営できます。`,
+ pool:"32 ETH未満なので、プールやリキッドステーキングで参加する形になります。",
+ rwT:"🎉 報酬が実りました", rwFirst:"最初の報酬が届きました！", rwDone:(y,r)=>`${y}年じっくり育てて、${r} ETHの報酬が実りました。`, rwPer:"1年あたりの実り", rwReplay:"もう一度見る", rwAria:(y)=>`報酬の実が${y}個なった木`,
+ chartAria:"年ごとの残高の棒グラフ", simNote:"※実際の報酬は変動し、元本も保証されません。投資助言ではありません。",
+ disc:"このアプリは学習用のシミュレーションです。投資の勧誘や助言ではありません。",
+ reset:"進捗をリセット", resetDone:"進捗をリセットしました", tsz:"文字を大きく", tszOn:"文字：大",
+ lessons:[
+ {t:"ステーキングとは？",b:["ETH（イーサリアムの暗号資産）を一定量ネットワークに預け、取引が正しいかを確認する役目に参加すると、見返りとして報酬を受け取れる仕組みです。","株の配当や投資信託の分配金に少し似ていますが、報酬の出どころは企業の利益ではなく、ネットワークの仕組みそのものです。"],q:"ステーキングで報酬がもらえるのは、どんな役目に参加するから？",o:["取引が正しいかを確認する","ETHを毎日売買する","新しい銘柄を選ぶ"],a:0,e:"売買ではなく、ネットワークの「確認作業」に参加することへの対価です。"},
+ {t:"マイニングから Proof of Stake へ",b:["以前のイーサリアムは、マイニング（大量の計算競争）で取引を確認していました。2022年の「The Merge」で、ETHを預けた参加者が確認する Proof of Stake（PoS）に切り替わりました。","消費電力は約99.9％減ったといわれ、環境にもやさしい仕組みです。"],q:"2022年にイーサリアムが切り替えた仕組みは？",o:["中央銀行による管理","Proof of Stake（ETHを預けて確認）","現金書留での決済"],a:1,e:"計算競争ではなく、ETHを預けた参加者が確認する仕組みになりました。"},
+ {t:"バリデータとは？",b:["バリデータは、取引を確認し、新しいブロックの提案や承認をする参加者です。自分で1台運営するには32 ETHが必要で、パソコンとネット接続を24時間動かし続けます。","32 ETHに満たない場合は、後で学ぶ「プール」などで参加できます。"],q:"自分でバリデータを1台運営するのに必要なETHは？",o:["1 ETH","3,200 ETH","32 ETH"],a:2,e:"1台につき32 ETHです。それより少ない人は、まとめて預ける方法があります。"},
+ {t:"報酬のしくみ",b:["報酬は、ネットワーク全体の参加者数などによって変わります。目安は年率およそ3〜4％前後ですが、毎年変動し、保証されたものではありません。","参加者が増えるほど、1人あたりの利率は下がる傾向があります。"],q:"報酬の年率について正しいのは？",o:["元本と一緒に必ず保証される","目安はあるが、変動し保証はない","毎月かならず10％もらえる"],a:1,e:"3〜4％前後はあくまで目安です。状況によって変わります。"},
+ {t:"知っておきたいリスク",b:["不正な動作をすると「スラッシング」というペナルティで、預けたETHが減ります。また、ずっとオフラインだと報酬が少し減ります。","さらにETH自体の価格は上下し、出金には順番待ちが生じることもあります。"],q:"バリデータが長時間オフラインだと、どうなる？",o:["報酬が少し減る","報酬が2倍になる","何も変わらない"],a:0,e:"稼働していない時間の分は、報酬が減ります。"},
+ {t:"手軽な参加方法",b:["32 ETHがなくても、みんなでまとめて預ける「ステーキングプール」、預けた証明トークンを受け取る「リキッドステーキング」、取引所のサービスなどがあります。","手軽な反面、運営への信頼や手数料（報酬の一部）がかかる点に注意しましょう。"],q:"32 ETH未満でもステーキングに参加する方法は？",o:["参加はできない","銀行の定期預金に切り替える","プールやリキッドステーキング"],a:2,e:"まとめて預ける方法があります。ただし手数料や運営への信頼が必要です。"}
+ ]
+},
+en:{
+ title:"Staking Garden | The more you learn, the more it grows",
+ tag:"Like a bonsai: learn, grow, and try staking in a safe simulation.",
+ tabLearn:"📖 Learn", tabSim:"🌱 Try staking", tabSimLock:"🔒 Try staking",
+ lvl:["Apprentice","Staker","Validator"], lvlSub:["Beginner","Intermediate","Advanced"],
+ toNext:n=>`${n} more correct quiz${n>1?"zes":""} to the next title`, maxLvl:"Top title reached. Let's finish your garden!",
+ cnt:(n,m)=>`${n} / ${m} cards done`,
+ gardenAria:(n,m)=>`Your garden: ${n} of ${m} pots are growing`,
+ cardOf:(i,m)=>`Card ${i} / ${m}`, cardLabel:"Learning card", quizBtn:"Take the quiz",
+ prev:"← Previous", next:"Next →", quizLabel:"3-choice quiz", done:"Done",
+ ok:"Correct! 🌿", ng:"Close! Let's think once more.",
+ retry:"Try again", backCard:"Read the card again", nextLesson:"Next card",
+ levelUp:"Level up!", reached:l=>`You are now ${l}`,
+ unlock2:"Next up: \"Try staking yourself\" is now unlocked",
+ unlock3:"You earned the Validator title. Finish the remaining cards to complete your garden.",
+ goSim:"Go to the staking trial", keep:"Keep learning",
+ fin:"Your garden is complete 🎉", finB:"You finished every learning card. Try the staking trial to see your tree grow even more.", reread:"Read from the start",
+ lockedT:"No sprout yet", lockedB:"Answer the quizzes for 2 cards correctly to become a Staker and unlock the trial.", goLearn:"Back to learning",
+ simT:"Staking trial", simSub:"No real money and no real blockchain. All numbers are sample values for learning.",
+ amount:"Amount of ETH to stake", years:"Period", yu:n=>`${n} yr`, apr:"Assumed yearly rate", uptime:"Uptime (effect of being offline)",
+ up100:"100% (always on)", up98:"98% (sometimes off)", up90:"90% (often off)",
+ reinvest:"Stake the rewards again", plant:"🌱 Plant (start the trial)",
+ steps:[["Deposit","You send your ETH to the deposit contract."],["Waiting line","You wait a few days before starting."],["Activated","You join in checking transactions."],["Rewards arrive","Small rewards pile up each time you help."]],
+ resT:"Your result", finalL:"Balance at the end", rewL:"Total rewards", monL:"Per month", lgB:"Staked", lgR:"Rewards",
+ own:n=>`With 32 ETH or more, you could run ${n} validator${n>1?"s":""} yourself.`,
+ pool:"With less than 32 ETH, you would join through a pool or liquid staking.",
+ rwT:"🎉 Your rewards have ripened", rwFirst:"Your first reward has arrived!", rwDone:(y,r)=>`After ${y} year${y>1?"s":""} of patient growing, you earned ${r} ETH in rewards.`, rwPer:"Fruit per year", rwReplay:"Watch again", rwAria:(y)=>`A tree with ${y} reward fruit${y>1?"s":""}`,
+ chartAria:"Bar chart of the balance for each year", simNote:"* Real rewards change and nothing is guaranteed. This is not investment advice.",
+ disc:"This app is a learning simulation. It is not investment advice or a sales pitch.",
+ reset:"Reset progress", resetDone:"Progress has been reset", tsz:"Larger text", tszOn:"Text: Large",
+ lessons:[
+ {t:"What is staking?",b:["You lock up a certain amount of ETH (Ethereum's crypto asset) in the network and help check that transactions are correct. In return, you receive rewards.","It is a little like stock dividends or fund distributions, but the rewards come from the network itself, not from a company's profit."],q:"What role do you take on to earn staking rewards?",o:["Checking that transactions are correct","Buying and selling ETH every day","Picking new stocks"],a:0,e:"It is not trading. You are paid for helping the network check its work."},
+ {t:"From mining to Proof of Stake",b:["Ethereum used to check transactions by mining, a huge race of computing. In 2022, \"The Merge\" switched it to Proof of Stake (PoS), where people who locked up ETH do the checking.","Its energy use dropped by about 99.9%, which is much kinder to the environment."],q:"Which system did Ethereum switch to in 2022?",o:["Management by a central bank","Proof of Stake (lock up ETH to check)","Payment by registered mail"],a:1,e:"Instead of a computing race, people who locked up ETH now do the checking."},
+ {t:"What is a validator?",b:["A validator checks transactions and proposes or approves new blocks. To run one yourself, you need 32 ETH, plus a computer and internet that stay on 24 hours a day.","If you have less than 32 ETH, you can join through a \"pool\", which you will learn about later."],q:"How much ETH do you need to run one validator yourself?",o:["1 ETH","3,200 ETH","32 ETH"],a:2,e:"It is 32 ETH per validator. With less, there are ways to join together."},
+ {t:"How rewards work",b:["Rewards change with things like how many people join the network. A rough guide is about 3–4% a year, but it moves every year and is not guaranteed.","The more people join, the lower the rate per person tends to be."],q:"Which is true about the yearly reward rate?",o:["It is always guaranteed with your principal","There is a rough guide, but it changes and is not guaranteed","You always get 10% every month"],a:1,e:"3–4% is only a rough guide. It changes with conditions."},
+ {t:"Risks to know",b:["If a validator misbehaves, it gets a penalty called \"slashing\" and loses some of its ETH. If it stays offline, it earns slightly less.","The price of ETH also moves up and down, and withdrawals can involve a waiting line."],q:"What happens if a validator is offline for a long time?",o:["Rewards get a little smaller","Rewards double","Nothing changes"],a:0,e:"You earn less for the time you are not running."},
+ {t:"Easier ways to join",b:["Even without 32 ETH, you can use a \"staking pool\" where many people stake together, \"liquid staking\" where you get a receipt token, or an exchange service.","They are easy, but remember you must trust the operator and pay fees (part of your rewards)."],q:"How can you stake with less than 32 ETH?",o:["You can't join","Switch to a bank time deposit","Pools or liquid staking"],a:2,e:"There are ways to stake together, but they need fees and trust in the operator."}
+ ]
+}
+};
+
+const N = 6;
+let lang = "en";
+(function(){
+  let l=null;
+  try{ if(window.APP_LANG==="ja"||window.APP_LANG==="en") l=window.APP_LANG; }catch(e){}
+  if(!l){ try{ const q=new URLSearchParams(location.search).get("lang"); if(q==="ja"||q==="en") l=q; }catch(e){} }
+  if(!l){ try{ const s=localStorage.getItem("lang"); if(s==="ja"||s==="en") l=s; }catch(e){} }
+  lang = l || "en";
+})();
+const T = ()=>I18N[lang];
+const $ = s=>document.querySelector(s);
+
+const S = {done:[],cur:0,mode:"card",picked:null,pendingUp:0,grown:-1,large:false,sim:null,simStep:0,tab:"learn",preset:null};
+try{ const d=JSON.parse(localStorage.getItem("sg_done")||"[]"); if(Array.isArray(d)) S.done=d.filter(x=>Number.isInteger(x)&&x>=0&&x<N); }catch(e){}
+try{ S.large = localStorage.getItem("sg_large")==="1"; }catch(e){}
+function save(){ try{ localStorage.setItem("sg_done",JSON.stringify(S.done)); }catch(e){} }
+const level = n => n<2?1:(n<4?2:3);
+const curLevel = ()=>level(S.done.length);
+let timers=[];
+
+function toast(msg){ const el=$("#toast"); el.textContent=msg; setTimeout(()=>{ if(el.textContent===msg) el.textContent=""; },2800); }
+
+/* ---------- garden ---------- */
+function gardenSVG(){
+  const t=T(), n=S.done.length, lv=curLevel();
+  const first=[...Array(N).keys()].find(i=>!S.done.includes(i));
+  const greens=["#2f5d3a","#3f7a4c","#4a8a58"];
+  let g="";
+  for(let i=0;i<N;i++){
+    const x=i*60, cx=x+30, done=S.done.includes(i);
+    g+=`<path d="M${x+9} 100h42l-6 20H${x+15}z" fill="#8a5a3c"/><rect x="${x+7}" y="96" width="46" height="6" rx="3" fill="#a06b48"/>`;
+    if(done){
+      const s=.85+.12*lv, c1=greens[i%3], c2=greens[(i+1)%3];
+      g+=`<g class="sway ${i===S.grown?'pop':''}"><path d="M${cx} 97 C${cx-6} 85 ${cx+6} 78 ${cx} 64" stroke="#6b4429" stroke-width="5" fill="none" stroke-linecap="round"/>`+
+      `<ellipse cx="${cx}" cy="${62}" rx="${22*s}" ry="${14*s}" fill="${c1}"/><ellipse cx="${cx-12*s}" cy="${70}" rx="${12*s}" ry="${8*s}" fill="${c2}"/><ellipse cx="${cx+13*s}" cy="${68}" rx="${12*s}" ry="${8*s}" fill="${c2}"/>`+
+      (lv>=3?`<circle cx="${cx+8}" cy="58" r="2.6" fill="#f4b6c2"/><circle cx="${cx-9}" cy="64" r="2.6" fill="#f4b6c2"/>`:"")+`</g>`;
+    } else if(i===first){
+      g+=`<g class="sway"><path d="M${cx} 97 C${cx} 90 ${cx} 86 ${cx} 82" stroke="#5aa588" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="${cx-6}" cy="82" rx="6" ry="3.5" fill="#7fc4a1" transform="rotate(-25 ${cx-6} 82)"/><ellipse cx="${cx+6}" cy="80" rx="6" ry="3.5" fill="#7fc4a1" transform="rotate(25 ${cx+6} 80)"/></g>`;
+    } else {
+      g+=`<ellipse cx="${cx}" cy="97" rx="14" ry="2.5" fill="#6b4a33" opacity=".5"/>`;
+    }
+  }
+  g+=`<rect x="0" y="120" width="360" height="3" rx="1.5" fill="#d8cfb6"/>`;
+  return `<svg class="garden" viewBox="0 0 360 126" role="img" aria-label="${t.gardenAria(n,N)}">${g}</svg>`;
+}
+function renderGarden(){
+  const t=T(), n=S.done.length, lv=curLevel();
+  $("#gardenBox").innerHTML=gardenSVG();
+  $("#lvBadge").textContent=`${["🌱","🌿","🌳"][lv-1]} ${t.lvl[lv-1]}（${t.lvlSub[lv-1]}）`;
+  $("#lvCount").textContent=t.cnt(n,N);
+  $("#lvBar").style.width=(n/N*100)+"%";
+  const need = lv===1?2-n:(lv===2?4-n:0);
+  $("#lvNext").textContent = lv<3? t.toNext(need):t.maxLvl;
+  $("#tab-sim").textContent = lv>=2? t.tabSim : t.tabSimLock;
+}
+
+/* ---------- learn ---------- */
+function renderLearn(){
+  const t=T(), L=t.lessons[S.cur], box=$("#view-learn");
+  let h="";
+  if(S.mode==="levelup"){
+    const lv=S.pendingUp;
+    h=`<div class="card lvup" data-demo="levelup-card"><div class="muted">${t.levelUp}</div><div class="big">${lv===2?"🌱→🌿":"🌿→🌳"}</div><div class="nm">${t.lvl[lv-1]}</div><div class="muted" style="margin-top:6px">${t.reached(t.lvlSub[lv-1])}</div><div class="hint">${lv===2?t.unlock2:t.unlock3}</div>`+
+    (lv===2?`<button class="btn pri" data-act="gosim" data-demo="levelup-go-sim">${t.goSim}</button>`:"")+
+    `<button class="btn sec" data-act="keep" data-demo="levelup-continue">${t.keep}</button></div>`;
+  } else if(S.mode==="finished"){
+    h=`<div class="card lvup" data-demo="finished-card"><div class="big">🌳🌳🌳</div><div class="nm">${t.fin}</div><div class="hint">${t.finB}</div><button class="btn pri" data-act="gosim" data-demo="finished-go-sim">${t.goSim}</button><button class="btn sec" data-act="restart" data-demo="finished-reread">${t.reread}</button></div>`;
+  } else {
+    h=`<div class="chips" role="group">`+t.lessons.map((_,i)=>`<button class="chip ${S.done.includes(i)?'on':''} ${i===S.cur?'cur':''}" data-act="goto" data-i="${i}" data-demo="lesson-chip-${i+1}" aria-label="${t.cardOf(i+1,N)}${S.done.includes(i)?' ✓ '+t.done:''}">${S.done.includes(i)?'✓':i+1}</button>`).join("")+`</div>`;
+    if(S.mode==="card"){
+      h+=`<article class="card" data-demo="learn-card"><div class="row"><div class="lab">${t.cardLabel}</div><div class="lab">${t.cardOf(S.cur+1,N)}${S.done.includes(S.cur)?' ・ ✓ '+t.done:''}</div></div><h2>${L.t}</h2><div class="body">${L.b.map(p=>`<p>${p}</p>`).join("")}</div>
+      <button class="btn pri" data-act="quiz" data-demo="start-quiz">${t.quizBtn}</button>
+      <div class="btns2"><button class="btn sec" data-act="prev" data-demo="prev-card" ${S.cur===0?'disabled style="opacity:.45"':''}>${t.prev}</button><button class="btn sec" data-act="nextcard" data-demo="next-card" ${S.cur===N-1?'disabled style="opacity:.45"':''}>${t.next}</button></div></article>`;
+    } else {
+      const p=S.picked, ans=p!==null;
+      h+=`<article class="card" data-demo="quiz-card"><div class="lab">${t.quizLabel}・${L.t}</div><h2>${L.q}</h2>`+
+      L.o.map((o,k)=>{ let c=""; if(ans){ if(k===L.a) c="ok"; else if(k===p) c="ng"; }
+        return `<button class="opt ${c}" data-act="pick" data-i="${k}" data-demo="quiz-option-${k+1}" ${ans?'disabled':''}>${["A","B","C"][k]}.　${o}</button>`; }).join("");
+      if(ans){
+        const right=p===L.a;
+        h+=`<div class="fb" data-demo="quiz-feedback" role="status"><b>${right?t.ok:t.ng}</b>${L.e}</div>`;
+        h+= right? `<button class="btn pri" data-act="afterok" data-demo="quiz-next">${t.nextLesson}</button>` : `<button class="btn pri" data-act="retry" data-demo="quiz-retry">${t.retry}</button>`;
+      }
+      h+=`<button class="btn sec" data-act="back" data-demo="back-to-card">${t.backCard}</button></article>`;
+    }
+  }
+  box.innerHTML=h;
+}
+function nextUndone(){
+  for(let k=1;k<=N;k++){ const i=(S.cur+k)%N; if(!S.done.includes(i)) return i; }
+  return -1;
+}
+$("#view-learn").addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]"); if(!b||b.disabled) return;
+  const a=b.dataset.act, i=+b.dataset.i, L=T().lessons[S.cur];
+  if(a==="goto"){ S.cur=i; S.mode="card"; S.picked=null; }
+  else if(a==="quiz"){ S.mode="quiz"; S.picked=null; }
+  else if(a==="back"){ S.mode="card"; S.picked=null; }
+  else if(a==="prev"){ if(S.cur>0) S.cur--; }
+  else if(a==="nextcard"){ if(S.cur<N-1) S.cur++; }
+  else if(a==="retry"){ S.picked=null; }
+  else if(a==="pick"){
+    S.picked=i;
+    if(i===L.a && !S.done.includes(S.cur)){
+      const old=curLevel(); S.done.push(S.cur); S.grown=S.cur; save();
+      if(curLevel()>old) S.pendingUp=curLevel();
+      renderGarden(); renderSimTab();
+    }
+  }
+  else if(a==="afterok"){
+    S.picked=null;
+    if(S.pendingUp){ S.mode="levelup"; }
+    else { const nx=nextUndone(); if(nx<0||S.done.length===N){ S.mode="finished"; } else { S.cur=nx; S.mode="card"; } }
+  }
+  else if(a==="keep"){ S.pendingUp=0; const nx=nextUndone(); if(S.done.length===N){S.mode="finished";} else { S.cur=nx<0?S.cur:nx; S.mode="card"; } }
+  else if(a==="gosim"){ S.pendingUp=0; S.mode="card"; switchTab("sim"); renderLearn(); return; }
+  else if(a==="restart"){ S.cur=0; S.mode="card"; S.picked=null; }
+  renderLearn();
+  if(a==="afterok"||a==="keep"||a==="goto"||a==="restart") window.scrollTo({top:0,behavior:"smooth"});
+});
+
+/* ---------- simulation ---------- */
+function simCalc(s){
+  const r=s.apr/100*s.up/100, rows=[];
+  for(let y=0;y<=s.years;y++){
+    const bal = s.re? s.amount*Math.pow(1+r,y) : s.amount*(1+r*y);
+    rows.push(bal);
+  }
+  const fin=rows[s.years];
+  return {rows,fin,rew:fin-s.amount,mon:(fin-s.amount)/(s.years*12)};
+}
+function renderSimTab(){
+  const t=T(), host=$("#view-sim"), lv=curLevel();
+  if(lv<2){
+    host.innerHTML=`<div class="card locked" data-demo="sim-locked"><div class="big">🌰</div><h3>${t.lockedT}</h3><p>${t.lockedB}</p><button class="btn pri" data-act="golearn" data-demo="sim-go-learn">${t.goLearn}</button></div>`;
+    return;
+  }
+  if(!host.querySelector("#amt")){
+    host.innerHTML=`<div class="card" data-demo="sim-form"><h2>${t.simT}</h2><div class="muted">${t.simSub}</div>
+    <label class="f" for="amt">${t.amount}</label>
+    <input type="number" id="amt" min="0.1" max="1000" step="0.1" value="32" data-demo="sim-amount" inputmode="decimal">
+    <div class="pre">${[1,8,32,64].map(v=>`<button type="button" data-preset="${v}" data-demo="sim-preset-${v}">${v} ETH</button>`).join("")}</div>
+    <label class="f" for="yrs">${t.years}：<span id="yrsV"></span></label>
+    <input type="range" id="yrs" min="1" max="10" value="5" data-demo="sim-years">
+    <label class="f" for="apr">${t.apr}</label>
+    <select id="apr" data-demo="sim-apr"><option value="3">3.0%</option><option value="3.5" selected>3.5%</option><option value="4">4.0%</option></select>
+    <label class="f" for="up">${t.uptime}</label>
+    <select id="up" data-demo="sim-uptime"><option value="100" data-k="up100"></option><option value="98" data-k="up98"></option><option value="90" data-k="up90"></option></select>
+    <label class="chk"><input type="checkbox" id="re" checked data-demo="sim-reinvest"><span data-k="reinvest"></span></label>
+    <button class="btn pri" id="plant" data-demo="sim-plant" data-k="plant"></button></div>
+    <div id="simOut" data-demo="sim-result"></div>`;
+  }
+  host.querySelectorAll("[data-k]").forEach(el=>{ el.textContent=t[el.dataset.k]; });
+  $("#yrsV").textContent=t.yu(+$("#yrs").value);
+  renderSimOut();
+}
+function renderSimOut(){
+  const out=$("#simOut"); if(!out) return;
+  const t=T(), s=S.sim;
+  if(!s){ out.innerHTML=""; return; }
+  let h=`<div class="card" data-demo="sim-steps"><h3>🪴 ${t.simT}</h3><ol class="steps">`+
+    t.steps.slice(0,S.simStep).map((st,i)=>`<li><span class="n">${i+1}</span><div><b>${st[0]}</b><br><span class="muted">${st[1]}</span></div></li>`).join("")+`</ol></div>`;
+  if(S.simStep>=4){
+    const c=simCalc(s), max=c.rows[s.years], bw=300/s.years;
+    let svg="";
+    for(let y=1;y<=s.years;y++){
+      const tot=c.rows[y]/max*100, base=s.amount/max*100, x=10+(y-1)*bw;
+      svg+=`<rect x="${x+2}" y="${110-tot}" width="${bw-4}" height="${tot}" rx="3" fill="#7fc4a1"/><rect x="${x+2}" y="${110-base}" width="${bw-4}" height="${base}" fill="#2f6f5e"/><text x="${x+bw/2}" y="124" font-size="9" text-anchor="middle" fill="#5a625d">${y}</text>`;
+    }
+    const n=Math.floor(s.amount/32);
+    let fr="";
+    for(let k=0;k<s.years;k++){
+      const a=k*2.4, rr=.35+.55*((k*37)%10)/10;
+      fr+=`<circle class="fr" cx="${(160+90*rr*Math.cos(a)).toFixed(1)}" cy="${(52+34*rr*Math.sin(a)).toFixed(1)}" r="7" fill="#f2b632" stroke="#c98a10" stroke-width="1.5" style="animation-delay:${(.3+k*.18).toFixed(2)}s"/>`;
+    }
+    h+=`<div class="card rwcard" data-demo="sim-reward"><h3>${t.rwT}</h3>
+    <svg viewBox="0 0 320 150" width="100%" style="max-width:360px" role="img" aria-label="${t.rwAria(s.years)}"><path d="M130 130h60l-8 18h-44z" fill="#8a5a3c"/><rect x="126" y="124" width="68" height="8" rx="4" fill="#a06b48"/><path d="M160 126 C150 108 170 98 160 78" stroke="#6b4429" stroke-width="8" fill="none" stroke-linecap="round"/><g class="sway"><ellipse cx="160" cy="55" rx="105" ry="44" fill="#3f7a4c"/><ellipse cx="100" cy="72" rx="52" ry="26" fill="#2f5d3a"/><ellipse cx="222" cy="70" rx="52" ry="26" fill="#4a8a58"/>${fr}</g></svg>
+    <div class="rwnum" data-demo="sim-reward-number">+<span id="rwNum">${c.rew.toFixed(2)}</span> ETH</div>
+    <div class="rwmsg">${t.rwFirst}</div>
+    <div>${t.rwDone(s.years,c.rew.toFixed(2))}</div>
+    <div class="muted" style="margin-top:6px">${t.rwPer}：+${(c.rew/s.years).toFixed(2)} ETH</div>
+    <button class="btn sec" data-act="rwreplay" data-demo="sim-reward-replay">${t.rwReplay}</button></div>`;
+    h+=`<div class="card" data-demo="sim-summary"><h3>🌳 ${t.resT}</h3>
+    <div class="stats"><div class="stat"><b>${c.fin.toFixed(2)}</b><span>${t.finalL} (ETH)</span></div><div class="stat"><b>+${c.rew.toFixed(2)}</b><span>${t.rewL} (ETH)</span></div><div class="stat"><b>${c.mon.toFixed(3)}</b><span>${t.monL} (ETH)</span></div></div>
+    <svg viewBox="0 0 320 130" width="100%" role="img" aria-label="${t.chartAria}">${svg}</svg>
+    <div class="legend"><span><i style="background:#2f6f5e"></i>${t.lgB}</span><span><i style="background:#7fc4a1"></i>${t.lgR}</span></div>
+    <p style="margin:12px 0 0">${n>=1?t.own(n):t.pool}</p><div class="note">${t.simNote}</div></div>`;
+  }
+  out.innerHTML=h;
+  if(S.countPlay){
+    S.countPlay=false;
+    const el=$("#rwNum");
+    if(el && S.simStep>=4 && !matchMedia("(prefers-reduced-motion:reduce)").matches){
+      const target=simCalc(s).rew, t0=performance.now();
+      const step=now=>{ const p=Math.min(1,(now-t0)/1600), e=1-Math.pow(1-p,3); const n=$("#rwNum"); if(!n) return; n.textContent=(target*e).toFixed(2); if(p<1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }
+  }
+}
+function runSim(){
+  timers.forEach(clearTimeout); timers=[];
+  let amount=parseFloat($("#amt").value); if(!(amount>0)) amount=1; amount=Math.min(1000,Math.max(.1,amount));
+  $("#amt").value=amount;
+  S.sim={amount,years:+$("#yrs").value,apr:parseFloat($("#apr").value),up:+$("#up").value,re:$("#re").checked};
+  S.simStep=0; renderSimOut();
+  for(let i=1;i<=4;i++) timers.push(setTimeout(()=>{ S.simStep=i; if(i===4) S.countPlay=true; renderSimOut(); if(i===4) $("#simOut").scrollIntoView({behavior:"smooth",block:"start"}); },i*650));
+}
+$("#view-sim").addEventListener("click",e=>{
+  const p=e.target.closest("[data-preset]");
+  if(p){ $("#amt").value=p.dataset.preset; return; }
+  if(e.target.closest("#plant")){ runSim(); return; }
+  if(e.target.closest("[data-act=rwreplay]")){ S.countPlay=true; renderSimOut(); return; }
+  if(e.target.closest("[data-act=golearn]")) switchTab("learn");
+});
+$("#view-sim").addEventListener("input",e=>{ if(e.target.id==="yrs") $("#yrsV").textContent=T().yu(+e.target.value); });
+
+/* ---------- shell ---------- */
+function switchTab(k){
+  S.tab=k;
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===k?"true":"false"));
+  $("#view-learn").classList.toggle("hide",k!=="learn");
+  $("#view-sim").classList.toggle("hide",k!=="sim");
+  if(k==="sim") renderSimTab();
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+
+function applyText(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent=T()[el.dataset.i18n]; });
+  const tz=$("#tsz"); tz.textContent=S.large?T().tszOn:T().tsz; tz.setAttribute("aria-pressed",S.large);
+  document.documentElement.classList.toggle("large",S.large);
+}
+$("#tsz").addEventListener("click",()=>{ S.large=!S.large; try{localStorage.setItem("sg_large",S.large?"1":"0");}catch(e){} applyText(); });
+
+function setLang(l){
+  lang=l; try{ localStorage.setItem("lang",l); }catch(e){}
+  document.documentElement.lang=l; document.title=T().title;
+  $("#b-ja").setAttribute("aria-pressed",l==="ja"); $("#b-en").setAttribute("aria-pressed",l==="en");
+  applyText(); renderGarden(); renderLearn(); renderSimTab();
+}
+document.querySelectorAll("[data-lang]").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+
+$("#resetBtn").addEventListener("click",()=>{
+  S.done=[]; S.cur=0; S.mode="card"; S.picked=null; S.pendingUp=0; S.grown=-1; S.sim=null; S.simStep=0;
+  timers.forEach(clearTimeout); save();
+  $("#view-sim").innerHTML="";
+  switchTab("learn"); renderGarden(); renderLearn(); renderSimTab(); switchTab("learn");
+  toast(T().resetDone);
+});
+
+setLang(lang);
+switchTab("learn");
+</script>
+</body>
+</html>
