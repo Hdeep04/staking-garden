@@ -3,6 +3,7 @@
 
 
 - ▶ **Try it:** https://hdeep04.github.io/staking-garden/
+- 🎬 **Demo video:** https://hdeep04.github.io/staking-garden/demo.mp4
 
 ## About
 
